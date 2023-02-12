@@ -19,4 +19,12 @@ public interface CredentialMapper {
     })
     List<Credential> findCredentialsByUserId(Integer userId);
 
+    @Update("UPDATE CREDENTIALS SET url=#{url}, username = #{username}, password = #{password}, key = #{key} " +
+            "WHERE credentialid = #{credentialId}")
+    @Options(useGeneratedKeys = true, keyProperty="credentialId")
+    Integer updateCredential(Credential credential);
+
+    @Delete("DELETE FROM CREDENTIALS WHERE credentialid = #{credentialId}")
+    void deleteCredential(Integer credentialId);
+
 }

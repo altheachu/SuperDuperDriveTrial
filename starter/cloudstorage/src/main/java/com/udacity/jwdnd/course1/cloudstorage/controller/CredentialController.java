@@ -6,9 +6,7 @@ import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/credential")
 @Controller
@@ -36,18 +34,25 @@ public class CredentialController {
                 }
 
             }else{
-//                Integer noteId = noteService.updateNote(note);
-//                if(noteId > 0){
-//                    model.addAttribute("success", true);
-//                }else{
-//                    model.addAttribute("error", true);
-//                    model.addAttribute("errorMsg", "update note failed");
-//                }
+                Integer credentialId = credentialService.updateCredential(credential);
+                if(credentialId > 0){
+                    model.addAttribute("success", true);
+                }else{
+                    model.addAttribute("error", true);
+                    model.addAttribute("errorMsg", "update credential failed");
+                }
             }
         }else{
             model.addAttribute("error", true);
             model.addAttribute("errorMsg", "found no userId");
         }
+        return "result";
+    }
+
+    @GetMapping("/delete/{credentialId}")
+    public String deleteCredential(Model model, @PathVariable("credentialId") Integer credentialId){
+        credentialService.deleteCredential(credentialId);
+        model.addAttribute("success",true);
         return "result";
     }
 }

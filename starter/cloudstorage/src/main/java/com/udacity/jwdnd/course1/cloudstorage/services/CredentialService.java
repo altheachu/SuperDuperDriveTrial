@@ -23,10 +23,7 @@ public class CredentialService {
     @Transactional(rollbackFor = Exception.class)
     public Integer createCredential(Credential credential, Integer userId){
 
-        SecureRandom random = new SecureRandom();
-        byte[] key = new byte[16];
-        random.nextBytes(key);
-        String encodedKey = Base64.getEncoder().encodeToString(key);
+        String encodedKey = Base64.getEncoder().encodeToString(this.getKey());
         String encryptedPassword = encryptionService.encryptValue(credential.getPassword(), encodedKey);
 
         credential.setKey(encodedKey);
@@ -39,4 +36,26 @@ public class CredentialService {
     public List<Credential> findCredentialsByUserId(Integer userId){
         return credentialMapper.findCredentialsByUserId(userId);
     }
+
+    @Transactional(rollbackFor = Exception.class)
+    public Integer updateCredential(Credential credential){
+        String encodedKey = Base64.getEncoder().encodeToString(this.getKey());
+        String encryptedPassword = encryptionService.encryptValue(credential.getPassword(), encodedKey);
+
+        credential.setKey(encodedKey);
+        credential.setPassword(encryptedPassword);
+        return credentialMapper.updateCredential(credential);
+    }
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteCredential(Integer credentialId){
+        credentialMapper.deleteCredential(credentialId);
+    }
+
+    private byte[] getKey(){
+        SecureRandom random = new SecureRandom();
+        byte[] key = new byte[16];
+        random.nextBytes(key);
+        return key;
+    }
+
 }
