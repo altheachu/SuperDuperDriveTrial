@@ -2,19 +2,19 @@ package com.udacity.jwdnd.course1.cloudstorage.entity;
 
 public class File {
 
-    private Integer field;
+    private Integer fileId;
     private String filename;
     private String contentType;
     private String fileSize;
     private Integer userId;
     private byte[] fileData;
 
-    public Integer getField() {
-        return field;
+    public Integer getFileId() {
+        return fileId;
     }
 
-    public void setField(Integer field) {
-        this.field = field;
+    public void setFileId(Integer fileId) {
+        this.fileId = fileId;
     }
 
     public String getFilename() {
