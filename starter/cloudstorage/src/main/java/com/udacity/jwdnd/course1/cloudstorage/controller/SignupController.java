@@ -30,15 +30,15 @@ public class SignupController {
         boolean signupError = false;
 
         if (!userService.isUsernameAvailable(user.getUsername())) {
-            //The username already exists.
             signupError = true;
+            model.addAttribute("errorMsg","The username already exists.");
         }
 
         if (signupError == false) {
             int userId = userService.createUser(user);
             if (userId <= 0) {
-                //There was an error signing you up. Please try again.
                 signupError = false;
+                model.addAttribute("errorMsg","create user failed.");
             }
         }
 
@@ -46,6 +46,7 @@ public class SignupController {
             model.addAttribute("signupSuccess", true);
         } else {
             model.addAttribute("signupError", signupError);
+
         }
 
         return "signup";

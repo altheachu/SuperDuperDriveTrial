@@ -17,7 +17,8 @@ public class NoteService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public Integer createNote(Note note){
+    public Integer createNote(Note note, Integer userId){
+        note.setUserId(userId);
         return noteMapper.createNote(note);
     }
 
@@ -29,5 +30,10 @@ public class NoteService {
     public Integer updateNote(Note note){
         return noteMapper.updateNote(note);
     }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteNote(Integer noteId){
+        noteMapper.deleteNote(noteId);
+    };
 
 }

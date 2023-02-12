@@ -27,9 +27,7 @@ public class NoteController {
 
         if(userId > 0){
             if(note.getNoteId()==null||note.getNoteId().equals("")){
-
-                note.setUserId(userId);
-                if(noteService.createNote(note) > 0){
+                if(noteService.createNote(note, userId) > 0){
                     model.addAttribute("success", true);
                 }else{
                     model.addAttribute("error", true);
@@ -54,8 +52,9 @@ public class NoteController {
     }
 
     @GetMapping("/delete/{noteId}")
-    public String deleteNote(@PathVariable("noteId") Integer noteId) {
-        System.out.println("delete test");
+    public String deleteNote(Model model, @PathVariable("noteId") Integer noteId) {
+        noteService.deleteNote(noteId);
+        model.addAttribute("success", true);
         return "/result";
     }
 }
