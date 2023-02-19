@@ -20,12 +20,12 @@ public class SignupController {
     }
 
     @GetMapping
-    public String getSignupPage(){
+    public String getSignupPage(Model model){
         return "signup";
     }
 
     @PostMapping
-    public String doSignup(Model model, @ModelAttribute("user") User user){
+    public String doSignup(Model model, @ModelAttribute("user") User user) {
 
         boolean signupError = false;
 
@@ -44,11 +44,10 @@ public class SignupController {
 
         if (signupError == false) {
             model.addAttribute("signupSuccess", true);
+            return "redirect:/login";
         } else {
             model.addAttribute("signupError", signupError);
-
+            return "signup";
         }
-
-        return "signup";
     }
 }
