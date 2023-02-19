@@ -1,5 +1,6 @@
 package com.udacity.jwdnd.course1.cloudstorage;
 
+import com.udacity.jwdnd.course1.cloudstorage.entity.User;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
@@ -21,6 +22,12 @@ class CloudStorageApplicationTests {
 	private WebDriver driver;
 
 	private SignupPage signupPage;
+
+	private LoginPage loginPage;
+
+	private HomePage homePage;
+
+	private NotePage notePage;
 
 	@BeforeAll
 	static void beforeAll() {
@@ -59,17 +66,56 @@ class CloudStorageApplicationTests {
 	logs out, and verifies that the home page is no longer accessible.*/
 	@Test
 	public void user_happy_path(){
+		// sign up
 		signupPage = new SignupPage(driver);
 		driver.get("http://localhost:" + this.port + "/signup");
-		signupPage.signup();
+		signupPage.signup(CloudStorageApplicationTests.getMockUserInfo());
 		Assertions.assertEquals("http://localhost:" + this.port + "/login", driver.getCurrentUrl());
-		// TODO check successful msg
-		// Login
+		Assertions.assertTrue(driver.findElement(By.id("success-msg")).getText().contains("You successfully signed up!"));
+		// log in
+		loginPage = new LoginPage(driver);
+		loginPage.login(CloudStorageApplicationTests.getMockUserInfo());
+		Assertions.assertEquals("http://localhost:" + this.port + "/home", driver.getCurrentUrl());
+		// logout
+		homePage = new HomePage(driver);
+		homePage.logout();
+		Assertions.assertEquals("http://localhost:" + this.port + "/login", driver.getCurrentUrl());
+		driver.get("http://localhost:" + this.port + "/home");
+		Assertions.assertNotEquals("http://localhost:" + this.port + "/home", driver.getCurrentUrl());
+
 	}
 
 	/*creates a note, and verifies it is displayed*/
 	/*edits an existing note and verifies that the changes are displayed.*/
 	/*Write a test that deletes a note and verifies that the note is no longer displayed.*/
+	@Test
+	public void notes_happy_path(){
+		// sign up
+		signupPage = new SignupPage(driver);
+		driver.get("http://localhost:" + this.port + "/signup");
+		signupPage.signup(CloudStorageApplicationTests.getMockUserInfo());
+		//login in
+		loginPage = new LoginPage(driver);
+		loginPage.login(CloudStorageApplicationTests.getMockUserInfo());
+		// navigate to notes tab
+		homePage = new HomePage(driver);
+		homePage.navToNotes();
+		notePage = new NotePage(driver);
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+		notePage.openModal();
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+		// create note
+		notePage.createNote();
+		// list xpath
+	}
 
 	/*creates a set of credentials, verifies that they are displayed, and verifies that the displayed password is encrypted.*/
 	/*views an existing set of credentials, verifies that the viewable password is unencrypted, edits the credentials, and verifies that the changes are displayed.*/
@@ -235,5 +281,14 @@ class CloudStorageApplicationTests {
 		}
 		Assertions.assertFalse(driver.getPageSource().contains("HTTP Status 403 – Forbidden"));
 
+	}
+
+	private static User getMockUserInfo(){
+		User user = new User();
+		user.setFirstname("John");
+		user.setLastname("Chen");
+		user.setUsername("t1111");
+		user.setPassword("1234");
+		return user;
 	}
 }

@@ -30,7 +30,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
                 .and().formLogin().loginPage("/login").permitAll()
                 .defaultSuccessUrl("/home", true)
-                .and().logout().logoutSuccessHandler(new CustomLogoutSuccessHandler())
+                .and().logout().logoutSuccessUrl("/login?logout")
                 .invalidateHttpSession(true)
                 .clearAuthentication(true)
                 .and().csrf().ignoringAntMatchers("/h2/**");

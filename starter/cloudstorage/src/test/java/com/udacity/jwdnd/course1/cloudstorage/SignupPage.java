@@ -1,5 +1,6 @@
 package com.udacity.jwdnd.course1.cloudstorage;
 
+import com.udacity.jwdnd.course1.cloudstorage.entity.User;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -26,11 +27,11 @@ public class SignupPage {
         PageFactory.initElements(driver,this);
     }
 
-    public void signup(){
-        inputFirstName.sendKeys("John");
-        inputLastName.sendKeys("Chen");
-        inputUsername.sendKeys("t1111");
-        inputPassword.sendKeys("1234");
+    public void signup(User user){
+        inputFirstName.sendKeys(user.getFirstname());
+        inputLastName.sendKeys(user.getLastname());
+        inputUsername.sendKeys(user.getUsername());
+        inputPassword.sendKeys(user.getPassword());
         buttonSignUp.click();
     }
 }

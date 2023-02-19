@@ -18,8 +18,7 @@ public class LoginController {
     }
 
     @GetMapping
-    public String getLoginPage(@RequestParam(value = "signupSuccess",required = false) boolean isSuccessSignup, Model model){
-        model.addAttribute("signupSuccess",isSuccessSignup);
+    public String getLoginPage(){
         return "login";
     }
 
