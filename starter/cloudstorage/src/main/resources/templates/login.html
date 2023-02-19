@@ -12,7 +12,7 @@
         <div class="container justify-content-center w-25 p-3" style="background-color: #eeeeee; margin-top: 5em;">
             <h1 class="display-5">Login</h1>
             <div id="success-msg" class="alert alert-dark" th:if="${signupSuccess}">
-                You successfully SignedUp,Please Login To Continue
+                You successfully Signed Up,Please Login To Continue
             </div>
             <form action="#" method="POST" th:action="@{/login}" th:object="${user}">
                 <div th:if="${param.error}" class="alert alert-danger">

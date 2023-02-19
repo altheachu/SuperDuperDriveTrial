@@ -18,8 +18,9 @@ class CloudStorageApplicationTests {
 
 	@LocalServerPort
 	private int port;
-
 	private WebDriver driver;
+
+	private SignupPage signupPage;
 
 	@BeforeAll
 	static void beforeAll() {
@@ -54,7 +55,17 @@ class CloudStorageApplicationTests {
 		driver.get("http://localhost:" + this.port + "/result");
 		Assertions.assertNotEquals("Result", driver.getTitle());
 	}
-	/*signs up a new user, logs in, verifies that the home page is accessible, logs out, and verifies that the home page is no longer accessible.*/
+	/*signs up a new user, logs in, verifies that the home page is accessible,
+	logs out, and verifies that the home page is no longer accessible.*/
+	@Test
+	public void user_happy_path(){
+		signupPage = new SignupPage(driver);
+		driver.get("http://localhost:" + this.port + "/signup");
+		signupPage.signup();
+		Assertions.assertEquals("http://localhost:" + this.port + "/login", driver.getCurrentUrl());
+		// TODO check successful msg
+		// Login
+	}
 
 	/*creates a note, and verifies it is displayed*/
 	/*edits an existing note and verifies that the changes are displayed.*/
@@ -110,9 +121,9 @@ class CloudStorageApplicationTests {
 
 		/* Check that the sign up was successful. 
 		// You may have to modify the element "success-msg" and the sign-up 
-		// success message below depening on the rest of your code.
+		// success message below depending on the rest of your code.
 		*/
-//		Assertions.assertTrue(driver.findElement(By.id("success-msg")).getText().contains("You successfully signed up!"));
+		Assertions.assertTrue(driver.findElement(By.id("success-msg")).getText().contains("You successfully signed up!"));
 
 	}
 
