@@ -34,9 +34,11 @@ public class FileService {
         newFile.setFileSize(String.valueOf(file.getSize()));
         newFile.setContentType(file.getContentType());
         newFile.setFilename(file.getOriginalFilename());
-        // TODO
-        return 1;
+        return fileMapper.createFile(newFile);
     }
 
+    public List<File> findFilesByUserId(Integer userId){
+        return fileMapper.findFilesByUserId(userId);
+    }
 
 }
