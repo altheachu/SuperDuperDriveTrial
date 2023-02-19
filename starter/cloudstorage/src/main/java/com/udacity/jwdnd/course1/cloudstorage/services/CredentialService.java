@@ -47,8 +47,14 @@ public class CredentialService {
         return credentialMapper.updateCredential(credential);
     }
     @Transactional(rollbackFor = Exception.class)
-    public void deleteCredential(Integer credentialId){
-        credentialMapper.deleteCredential(credentialId);
+    public boolean deleteCredential(Integer credentialId){
+        boolean isDeleteSuccess = false;
+        try {
+            credentialMapper.deleteCredential(credentialId);
+            isDeleteSuccess = true;
+        }finally {
+            return isDeleteSuccess;
+        }
     }
 
     private byte[] getKey(){

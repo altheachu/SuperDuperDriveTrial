@@ -32,8 +32,14 @@ public class NoteService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void deleteNote(Integer noteId){
-        noteMapper.deleteNote(noteId);
+    public boolean deleteNote(Integer noteId){
+        boolean isDeleteSuccess = false;
+        try{
+            noteMapper.deleteNote(noteId);
+            isDeleteSuccess = true;
+        }finally {
+            return isDeleteSuccess;
+        }
     };
 
 }

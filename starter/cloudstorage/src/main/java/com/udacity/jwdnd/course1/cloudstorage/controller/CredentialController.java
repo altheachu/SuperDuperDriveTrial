@@ -51,8 +51,13 @@ public class CredentialController {
 
     @GetMapping("/delete/{credentialId}")
     public String deleteCredential(Model model, @PathVariable("credentialId") Integer credentialId){
-        credentialService.deleteCredential(credentialId);
-        model.addAttribute("success",true);
+        boolean isDeleteSuccess = credentialService.deleteCredential(credentialId);
+        if(isDeleteSuccess){
+            model.addAttribute("success",true);
+        }else{
+            model.addAttribute("error", true);
+            model.addAttribute("errorMsg", "delete credential failed");
+        }
         return "result";
     }
 }
