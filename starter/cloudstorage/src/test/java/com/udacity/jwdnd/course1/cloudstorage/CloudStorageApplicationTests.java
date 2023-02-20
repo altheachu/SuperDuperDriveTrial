@@ -1,5 +1,6 @@
 package com.udacity.jwdnd.course1.cloudstorage;
 
+import com.udacity.jwdnd.course1.cloudstorage.entity.Note;
 import com.udacity.jwdnd.course1.cloudstorage.entity.User;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
@@ -28,6 +29,8 @@ class CloudStorageApplicationTests {
 	private HomePage homePage;
 
 	private NotePage notePage;
+
+	private ResultPage resultPage;
 
 	@BeforeAll
 	static void beforeAll() {
@@ -101,20 +104,24 @@ class CloudStorageApplicationTests {
 		homePage = new HomePage(driver);
 		homePage.navToNotes();
 		notePage = new NotePage(driver);
-		try {
-			Thread.sleep(10000);
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}
+		WebDriverWait webDriverWait = new WebDriverWait(driver,5);
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("openNoteModal")));
 		notePage.openModal();
-		try {
-			Thread.sleep(10000);
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("note-title")));
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("note-description")));
 		// create note
-		notePage.createNote();
-		// list xpath
+		notePage.createNote(CloudStorageApplicationTests.getMockNoteInfo());
+		// back from result
+		resultPage = new ResultPage(driver);
+		resultPage.goBackToHomeFromSuccessMsg();
+		// navigate to notes tab again
+		homePage.navToNotes();
+		// wait util element display
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"userTable\"]/tbody/tr[1]/th")));
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"userTable\"]/tbody/tr[1]/td[2]")));
+		// check display
+		Assertions.assertEquals(CloudStorageApplicationTests.getMockNoteInfo().getNoteTitle(),notePage.getNoteTitleDisplay());
+		Assertions.assertEquals(CloudStorageApplicationTests.getMockNoteInfo().getNoteDescription(),notePage.getNoteDescriptionDisplay());
 	}
 
 	/*creates a set of credentials, verifies that they are displayed, and verifies that the displayed password is encrypted.*/
@@ -290,5 +297,12 @@ class CloudStorageApplicationTests {
 		user.setUsername("t1111");
 		user.setPassword("1234");
 		return user;
+	}
+
+	private static Note getMockNoteInfo(){
+		Note note = new Note();
+		note.setNoteTitle("testNoteTitle");
+		note.setNoteDescription("testNoteDescription");
+		return note;
 	}
 }

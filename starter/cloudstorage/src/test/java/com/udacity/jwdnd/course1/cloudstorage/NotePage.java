@@ -1,5 +1,6 @@
 package com.udacity.jwdnd.course1.cloudstorage;
 
+import com.udacity.jwdnd.course1.cloudstorage.entity.Note;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -19,6 +20,11 @@ public class NotePage {
     @FindBy(id="noteSubmit")
     private WebElement noteSubmit;
 
+    @FindBy(xpath = "//*[@id=\"userTable\"]/tbody/tr[1]/th")
+    private WebElement tableNoteTitle;
+
+    @FindBy(xpath = "//*[@id=\"userTable\"]/tbody/tr[1]/td[2]")
+    private WebElement tableNoteDescription;
     public NotePage(WebDriver driver){
         PageFactory.initElements(driver,this);
     }
@@ -27,10 +33,17 @@ public class NotePage {
         openNoteModal.click();
     }
 
-    public void createNote(){
-        noteTitle.sendKeys("testNoteTitle");
-        noteDescription.sendKeys("testNoteDescription");
+    public void createNote(Note note){
+        noteTitle.sendKeys(note.getNoteTitle());
+        noteDescription.sendKeys(note.getNoteDescription());
         noteSubmit.submit();
     }
 
+    public String getNoteTitleDisplay(){
+        return tableNoteTitle.getText();
+    }
+
+    public String getNoteDescriptionDisplay(){
+        return tableNoteDescription.getText();
+    }
 }
