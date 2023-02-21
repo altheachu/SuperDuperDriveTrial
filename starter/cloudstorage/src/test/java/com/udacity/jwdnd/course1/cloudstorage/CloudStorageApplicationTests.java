@@ -75,12 +75,12 @@ class CloudStorageApplicationTests {
 		// sign up
 		signupPage = new SignupPage(driver);
 		driver.get("http://localhost:" + this.port + "/signup");
-		signupPage.signup(CloudStorageApplicationTests.getMockUserInfo());
+		signupPage.signup(CloudStorageApplicationTests.getMockUserInfo(1));
 		Assertions.assertEquals("http://localhost:" + this.port + "/login", driver.getCurrentUrl());
 		Assertions.assertTrue(driver.findElement(By.id("success-msg")).getText().contains("You successfully signed up!"));
 		// log in
 		loginPage = new LoginPage(driver);
-		loginPage.login(CloudStorageApplicationTests.getMockUserInfo());
+		loginPage.login(CloudStorageApplicationTests.getMockUserInfo(1));
 		Assertions.assertEquals("http://localhost:" + this.port + "/home", driver.getCurrentUrl());
 		// logout
 		homePage = new HomePage(driver);
@@ -88,21 +88,18 @@ class CloudStorageApplicationTests {
 		Assertions.assertEquals("http://localhost:" + this.port + "/login", driver.getCurrentUrl());
 		driver.get("http://localhost:" + this.port + "/home");
 		Assertions.assertNotEquals("http://localhost:" + this.port + "/home", driver.getCurrentUrl());
-
 	}
 
 	/*creates a note, and verifies it is displayed*/
-	/*edits an existing note and verifies that the changes are displayed.*/
-	/*Write a test that deletes a note and verifies that the note is no longer displayed.*/
 	@Test
-	public void notes_happy_path(){
+	public void create_notes_happy_path(){
 		// sign up
 		signupPage = new SignupPage(driver);
 		driver.get("http://localhost:" + this.port + "/signup");
-		signupPage.signup(CloudStorageApplicationTests.getMockUserInfo());
+		signupPage.signup(CloudStorageApplicationTests.getMockUserInfo(2));
 		//login in
 		loginPage = new LoginPage(driver);
-		loginPage.login(CloudStorageApplicationTests.getMockUserInfo());
+		loginPage.login(CloudStorageApplicationTests.getMockUserInfo(2));
 		// navigate to notes tab
 		homePage = new HomePage(driver);
 		homePage.navToNotes();
@@ -125,6 +122,35 @@ class CloudStorageApplicationTests {
 		// check display
 		Assertions.assertEquals(CloudStorageApplicationTests.getMockNoteInfo().getNoteTitle(),notePage.getNoteTitleDisplay());
 		Assertions.assertEquals(CloudStorageApplicationTests.getMockNoteInfo().getNoteDescription(),notePage.getNoteDescriptionDisplay());
+		homePage.logout();
+	}
+
+	/*edits an existing note and verifies that the changes are displayed.*/
+	@Test
+	public void edit_notes_happy_path(){
+		// sign up
+		signupPage = new SignupPage(driver);
+		driver.get("http://localhost:" + this.port + "/signup");
+		signupPage.signup(CloudStorageApplicationTests.getMockUserInfo(3));
+		//login in
+		loginPage = new LoginPage(driver);
+		loginPage.login(CloudStorageApplicationTests.getMockUserInfo(3));
+		// navigate to notes tab
+		homePage = new HomePage(driver);
+		homePage.navToNotes();
+		notePage = new NotePage(driver);
+		WebDriverWait webDriverWait = new WebDriverWait(driver,5);
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("openNoteModal")));
+		notePage.openModal();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("note-title")));
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("note-description")));
+		// create note
+		notePage.createOrUpdateNote(CloudStorageApplicationTests.getMockNoteInfo());
+		// back from result
+		resultPage = new ResultPage(driver);
+		resultPage.goBackToHomeFromSuccessMsg();
+		// navigate to notes tab again
+		homePage.navToNotes();
 		// open edit modal
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"userTable\"]/tbody/tr[1]/td[1]/button")));
 		notePage.getNoteEditModal();
@@ -143,6 +169,47 @@ class CloudStorageApplicationTests {
 		// check display after note edited
 		Assertions.assertEquals(CloudStorageApplicationTests.getMockNoteInfo2().getNoteTitle(),notePage.getNoteTitleDisplay());
 		Assertions.assertEquals(CloudStorageApplicationTests.getMockNoteInfo2().getNoteDescription(),notePage.getNoteDescriptionDisplay());
+		homePage.logout();
+	}
+
+	/*Write a test that deletes a note and verifies that the note is no longer displayed.*/
+	@Test
+	public void delete_notes_happy_path(){
+		// sign up
+		signupPage = new SignupPage(driver);
+		driver.get("http://localhost:" + this.port + "/signup");
+		signupPage.signup(CloudStorageApplicationTests.getMockUserInfo(4));
+		//login in
+		loginPage = new LoginPage(driver);
+		loginPage.login(CloudStorageApplicationTests.getMockUserInfo(4));
+		// navigate to notes tab
+		homePage = new HomePage(driver);
+		homePage.navToNotes();
+		notePage = new NotePage(driver);
+		WebDriverWait webDriverWait = new WebDriverWait(driver,5);
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("openNoteModal")));
+		notePage.openModal();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("note-title")));
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("note-description")));
+		// create note
+		notePage.createOrUpdateNote(CloudStorageApplicationTests.getMockNoteInfo());
+		// back from result
+		resultPage = new ResultPage(driver);
+		resultPage.goBackToHomeFromSuccessMsg();
+		// navigate to notes tab again
+		homePage.navToNotes();
+		// wait util element display
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"userTable\"]/tbody/tr[1]/td[1]/a")));
+		// delete note
+		notePage.deleteNote();
+		// back from result
+		resultPage.goBackToHomeFromSuccessMsg();
+		// check element disappear
+		Exception e1 = Assertions.assertThrows(Exception.class, ()->notePage.getNoteTitleDisplay());
+		Assertions.assertTrue(e1.getMessage().contains("no such element"));
+		Exception e2 = Assertions.assertThrows(Exception.class, ()->notePage.getNoteDescriptionDisplay());
+		Assertions.assertTrue(e2.getMessage().contains("no such element"));
+		homePage.logout();
 	}
 
 	/*creates a set of credentials, verifies that they are displayed, and verifies that the displayed password is encrypted.*/
@@ -311,12 +378,27 @@ class CloudStorageApplicationTests {
 
 	}
 
-	private static User getMockUserInfo(){
+	private static User getMockUserInfo(int i){
+
 		User user = new User();
 		user.setFirstname("John");
 		user.setLastname("Chen");
-		user.setUsername("t1111");
 		user.setPassword("1234");
+		switch(i) {
+			case 1:
+				user.setUsername("t1111");
+				break;
+			case 2:
+				user.setUsername("t1112");
+				break;
+			case 3:
+				user.setUsername("t1113");
+				break;
+			case 4:
+				user.setUsername("t1114");
+				break;
+		}
+
 		return user;
 	}
 

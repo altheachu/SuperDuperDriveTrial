@@ -28,6 +28,10 @@ public class NotePage {
 
     @FindBy(xpath = "//*[@id=\"userTable\"]/tbody/tr[1]/td[1]/button")
     private WebElement tableNoteEditButton;
+
+    @FindBy(xpath = "//*[@id=\"userTable\"]/tbody/tr[1]/td[1]/a")
+    private WebElement tableNoteDeleteLink;
+
     public NotePage(WebDriver driver){
         PageFactory.initElements(driver,this);
     }
@@ -58,4 +62,9 @@ public class NotePage {
         noteTitle.clear();
         noteDescription.clear();
     }
+
+    public void deleteNote(){
+        tableNoteDeleteLink.click();
+    }
+
 }
