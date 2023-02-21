@@ -25,6 +25,9 @@ public class NotePage {
 
     @FindBy(xpath = "//*[@id=\"userTable\"]/tbody/tr[1]/td[2]")
     private WebElement tableNoteDescription;
+
+    @FindBy(xpath = "//*[@id=\"userTable\"]/tbody/tr[1]/td[1]/button")
+    private WebElement tableNoteEditButton;
     public NotePage(WebDriver driver){
         PageFactory.initElements(driver,this);
     }
@@ -33,7 +36,7 @@ public class NotePage {
         openNoteModal.click();
     }
 
-    public void createNote(Note note){
+    public void createOrUpdateNote(Note note){
         noteTitle.sendKeys(note.getNoteTitle());
         noteDescription.sendKeys(note.getNoteDescription());
         noteSubmit.submit();
@@ -45,5 +48,14 @@ public class NotePage {
 
     public String getNoteDescriptionDisplay(){
         return tableNoteDescription.getText();
+    }
+
+    public void getNoteEditModal(){
+        tableNoteEditButton.click();
+    }
+
+    public void clearPreviousInput(){
+        noteTitle.clear();
+        noteDescription.clear();
     }
 }

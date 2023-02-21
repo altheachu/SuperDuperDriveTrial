@@ -15,6 +15,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 
 import java.io.File;
+
+import static java.lang.Thread.sleep;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class CloudStorageApplicationTests {
 
@@ -110,7 +113,7 @@ class CloudStorageApplicationTests {
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("note-title")));
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("note-description")));
 		// create note
-		notePage.createNote(CloudStorageApplicationTests.getMockNoteInfo());
+		notePage.createOrUpdateNote(CloudStorageApplicationTests.getMockNoteInfo());
 		// back from result
 		resultPage = new ResultPage(driver);
 		resultPage.goBackToHomeFromSuccessMsg();
@@ -122,6 +125,24 @@ class CloudStorageApplicationTests {
 		// check display
 		Assertions.assertEquals(CloudStorageApplicationTests.getMockNoteInfo().getNoteTitle(),notePage.getNoteTitleDisplay());
 		Assertions.assertEquals(CloudStorageApplicationTests.getMockNoteInfo().getNoteDescription(),notePage.getNoteDescriptionDisplay());
+		// open edit modal
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"userTable\"]/tbody/tr[1]/td[1]/button")));
+		notePage.getNoteEditModal();
+		// edit note
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("note-title")));
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("note-description")));
+		notePage.clearPreviousInput();
+		notePage.createOrUpdateNote(CloudStorageApplicationTests.getMockNoteInfo2());
+		// back from result
+		resultPage.goBackToHomeFromSuccessMsg();
+		// navigate to notes tab again
+		homePage.navToNotes();
+		// wait util element display
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"userTable\"]/tbody/tr[1]/th")));
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"userTable\"]/tbody/tr[1]/td[2]")));
+		// check display after note edited
+		Assertions.assertEquals(CloudStorageApplicationTests.getMockNoteInfo2().getNoteTitle(),notePage.getNoteTitleDisplay());
+		Assertions.assertEquals(CloudStorageApplicationTests.getMockNoteInfo2().getNoteDescription(),notePage.getNoteDescriptionDisplay());
 	}
 
 	/*creates a set of credentials, verifies that they are displayed, and verifies that the displayed password is encrypted.*/
@@ -303,6 +324,13 @@ class CloudStorageApplicationTests {
 		Note note = new Note();
 		note.setNoteTitle("testNoteTitle");
 		note.setNoteDescription("testNoteDescription");
+		return note;
+	}
+
+	private static Note getMockNoteInfo2(){
+		Note note = new Note();
+		note.setNoteTitle("editNoteTitle");
+		note.setNoteDescription("editNoteDescription");
 		return note;
 	}
 }
