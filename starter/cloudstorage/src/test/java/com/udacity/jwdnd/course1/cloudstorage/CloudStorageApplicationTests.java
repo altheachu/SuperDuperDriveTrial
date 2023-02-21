@@ -1,5 +1,6 @@
 package com.udacity.jwdnd.course1.cloudstorage;
 
+import com.udacity.jwdnd.course1.cloudstorage.entity.Credential;
 import com.udacity.jwdnd.course1.cloudstorage.entity.Note;
 import com.udacity.jwdnd.course1.cloudstorage.entity.User;
 import io.github.bonigarcia.wdm.WebDriverManager;
@@ -32,6 +33,8 @@ class CloudStorageApplicationTests {
 	private HomePage homePage;
 
 	private NotePage notePage;
+
+	private CredentialPage credentialPage;
 
 	private ResultPage resultPage;
 
@@ -213,6 +216,32 @@ class CloudStorageApplicationTests {
 	}
 
 	/*creates a set of credentials, verifies that they are displayed, and verifies that the displayed password is encrypted.*/
+	@Test
+	public void create_credential_happy_path(){
+		// sign up
+		signupPage = new SignupPage(driver);
+		driver.get("http://localhost:" + this.port + "/signup");
+		signupPage.signup(CloudStorageApplicationTests.getMockUserInfo(5));
+		//login in
+		loginPage = new LoginPage(driver);
+		loginPage.login(CloudStorageApplicationTests.getMockUserInfo(5));
+		// navigate to notes tab
+		homePage = new HomePage(driver);
+		homePage.navToCredential();
+		// open modal
+		credentialPage = new CredentialPage(driver);
+		WebDriverWait webDriverWait = new WebDriverWait(driver,5);
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("openCredentialModal")));
+		credentialPage.openModal();
+		// create credential
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credential-url")));
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credential-username")));
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credential-password")));
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credentialSave")));
+		credentialPage.createOrUpdate(CloudStorageApplicationTests.getMockCredentialInfo1());
+		// TODO check display
+	}
+
 	/*views an existing set of credentials, verifies that the viewable password is unencrypted, edits the credentials, and verifies that the changes are displayed.*/
 	/*deletes an existing set of credentials and verifies that the credentials are no longer displayed.*/
 
@@ -397,6 +426,9 @@ class CloudStorageApplicationTests {
 			case 4:
 				user.setUsername("t1114");
 				break;
+			case 5:
+				user.setUsername("t1115");
+				break;
 		}
 
 		return user;
@@ -414,5 +446,13 @@ class CloudStorageApplicationTests {
 		note.setNoteTitle("editNoteTitle");
 		note.setNoteDescription("editNoteDescription");
 		return note;
+	}
+
+	private static Credential getMockCredentialInfo1(){
+		Credential credential = new Credential();
+		credential.setUrl("https://catlog.com");
+		credential.setUsername("0000");
+		credential.setPassword("1234");
+		return credential;
 	}
 }
