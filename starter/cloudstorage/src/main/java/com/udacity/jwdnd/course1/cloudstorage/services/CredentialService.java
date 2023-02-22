@@ -20,6 +20,7 @@ public class CredentialService {
         this.encryptionService = encryptionService;
     }
 
+
     @Transactional(rollbackFor = Exception.class)
     public Integer createCredential(Credential credential, Integer userId){
 
@@ -35,6 +36,10 @@ public class CredentialService {
 
     public List<Credential> findCredentialsByUserId(Integer userId){
         return credentialMapper.findCredentialsByUserId(userId);
+    }
+
+    public String findKeyById(Integer id){
+        return credentialMapper.findKeyById(id);
     }
 
     @Transactional(rollbackFor = Exception.class)

@@ -3,6 +3,8 @@ package com.udacity.jwdnd.course1.cloudstorage;
 import com.udacity.jwdnd.course1.cloudstorage.entity.Credential;
 import com.udacity.jwdnd.course1.cloudstorage.entity.Note;
 import com.udacity.jwdnd.course1.cloudstorage.entity.User;
+import com.udacity.jwdnd.course1.cloudstorage.services.CredentialService;
+import com.udacity.jwdnd.course1.cloudstorage.services.EncryptionService;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
@@ -12,6 +14,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 
@@ -21,6 +24,11 @@ import static java.lang.Thread.sleep;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class CloudStorageApplicationTests {
+
+	@Autowired
+	private EncryptionService encryptionService;
+	@Autowired
+	private CredentialService credentialService;
 
 	@LocalServerPort
 	private int port;
@@ -225,7 +233,7 @@ class CloudStorageApplicationTests {
 		//login in
 		loginPage = new LoginPage(driver);
 		loginPage.login(CloudStorageApplicationTests.getMockUserInfo(5));
-		// navigate to notes tab
+		// navigate to credential tab
 		homePage = new HomePage(driver);
 		homePage.navToCredential();
 		// open modal
@@ -239,7 +247,11 @@ class CloudStorageApplicationTests {
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credential-password")));
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credentialSave")));
 		credentialPage.createOrUpdate(CloudStorageApplicationTests.getMockCredentialInfo1());
-		// TODO check display
+		// return homepage from resultpage
+		resultPage = new ResultPage(driver);
+		resultPage.goBackToHomeFromSuccessMsg();
+		// navigate to credential tab
+		homePage.navToCredential();
 	}
 
 	/*views an existing set of credentials, verifies that the viewable password is unencrypted, edits the credentials, and verifies that the changes are displayed.*/
@@ -454,5 +466,11 @@ class CloudStorageApplicationTests {
 		credential.setUsername("0000");
 		credential.setPassword("1234");
 		return credential;
+	}
+
+	public String getEncryptedPassword(String plainPassword, Integer id){
+
+		String key = credentialService.findKeyById(id);
+		return encryptionService.encryptValue(plainPassword,key);
 	}
 }
