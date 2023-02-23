@@ -23,6 +23,15 @@ public class CredentialPage {
     @FindBy(id="credentialSave")
     private WebElement save;
 
+    @FindBy(xpath = "//*[@id=\"credentialTable\"]/tbody/tr[1]/th")
+    private WebElement urlHomePage;
+
+    @FindBy(xpath = "//*[@id=\"credentialTable\"]/tbody/tr[1]/td[2]")
+    private WebElement usernameHomePage;
+
+    @FindBy(xpath = "//*[@id=\"credentialTable\"]/tbody/tr[1]/td[3]")
+    private WebElement passwordHomePage;
+
     public CredentialPage(WebDriver driver){
         PageFactory.initElements(driver,this);
     }
@@ -36,5 +45,13 @@ public class CredentialPage {
         usernameInput.sendKeys(credential.getUsername());
         passwordInput.sendKeys(credential.getPassword());
         save.click();
+    }
+
+    public Credential getCredentialAtHomePage(){
+        Credential credential = new Credential();
+        credential.setUrl(urlHomePage.getText());
+        credential.setUsername(usernameHomePage.getText());
+        credential.setPassword(passwordHomePage.getText());
+        return credential;
     }
 }

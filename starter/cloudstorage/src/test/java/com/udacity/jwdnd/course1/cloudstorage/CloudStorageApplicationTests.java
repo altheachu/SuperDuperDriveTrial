@@ -252,6 +252,18 @@ class CloudStorageApplicationTests {
 		resultPage.goBackToHomeFromSuccessMsg();
 		// navigate to credential tab
 		homePage.navToCredential();
+		// get encrypted password
+		String key = credentialService.findKeyById(1);
+		String encryptedPassword =
+			encryptionService.encryptValue(CloudStorageApplicationTests.getMockCredentialInfo1().getPassword(), key);
+		// compare actual and expected value
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"credentialTable\"]/tbody/tr[1]/th")));
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"credentialTable\"]/tbody/tr[1]/td[2]")));
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"credentialTable\"]/tbody/tr[1]/td[3]")));
+		Credential credential = credentialPage.getCredentialAtHomePage();
+		Assertions.assertEquals(CloudStorageApplicationTests.getMockCredentialInfo1().getUrl(), credential.getUrl());
+		Assertions.assertEquals(CloudStorageApplicationTests.getMockCredentialInfo1().getUsername(), credential.getUsername());
+		Assertions.assertEquals(encryptedPassword, credential.getPassword());
 	}
 
 	/*views an existing set of credentials, verifies that the viewable password is unencrypted, edits the credentials, and verifies that the changes are displayed.*/
