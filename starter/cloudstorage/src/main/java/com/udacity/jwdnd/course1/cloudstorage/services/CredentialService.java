@@ -38,8 +38,8 @@ public class CredentialService {
         return credentialMapper.findCredentialsByUserId(userId);
     }
 
-    public String findKeyById(Integer id){
-        return credentialMapper.findKeyById(id);
+    public String findKeyById(Integer userId){
+        return credentialMapper.findKeyById(userId);
     }
 
     @Transactional(rollbackFor = Exception.class)

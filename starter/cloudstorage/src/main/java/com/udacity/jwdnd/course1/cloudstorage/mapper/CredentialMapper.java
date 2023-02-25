@@ -19,7 +19,7 @@ public interface CredentialMapper {
     })
     List<Credential> findCredentialsByUserId(Integer userId);
 
-    @Select("SELECT key FROM CREDENTIALS WHERE credentialid = #{credentialId}")
+    @Select("SELECT key FROM CREDENTIALS WHERE userid = #{userId}")
     String findKeyById(Integer userId);
 
     @Update("UPDATE CREDENTIALS SET url=#{url}, username = #{username}, password = #{password}, key = #{key} " +

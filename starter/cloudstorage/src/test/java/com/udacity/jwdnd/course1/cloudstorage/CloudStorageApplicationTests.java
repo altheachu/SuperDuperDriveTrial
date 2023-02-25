@@ -5,6 +5,7 @@ import com.udacity.jwdnd.course1.cloudstorage.entity.Note;
 import com.udacity.jwdnd.course1.cloudstorage.entity.User;
 import com.udacity.jwdnd.course1.cloudstorage.services.CredentialService;
 import com.udacity.jwdnd.course1.cloudstorage.services.EncryptionService;
+import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
@@ -29,6 +30,9 @@ class CloudStorageApplicationTests {
 	private EncryptionService encryptionService;
 	@Autowired
 	private CredentialService credentialService;
+
+	@Autowired
+	private UserService userService;
 
 	@LocalServerPort
 	private int port;
@@ -83,15 +87,16 @@ class CloudStorageApplicationTests {
 	logs out, and verifies that the home page is no longer accessible.*/
 	@Test
 	public void user_happy_path(){
+		User user = CloudStorageApplicationTests.getMockUserInfo(1);
 		// sign up
 		signupPage = new SignupPage(driver);
 		driver.get("http://localhost:" + this.port + "/signup");
-		signupPage.signup(CloudStorageApplicationTests.getMockUserInfo(1));
+		signupPage.signup(user);
 		Assertions.assertEquals("http://localhost:" + this.port + "/login", driver.getCurrentUrl());
 		Assertions.assertTrue(driver.findElement(By.id("success-msg")).getText().contains("You successfully signed up!"));
 		// log in
 		loginPage = new LoginPage(driver);
-		loginPage.login(CloudStorageApplicationTests.getMockUserInfo(1));
+		loginPage.login(user);
 		Assertions.assertEquals("http://localhost:" + this.port + "/home", driver.getCurrentUrl());
 		// logout
 		homePage = new HomePage(driver);
@@ -104,13 +109,14 @@ class CloudStorageApplicationTests {
 	/*creates a note, and verifies it is displayed*/
 	@Test
 	public void create_notes_happy_path(){
+		User user = CloudStorageApplicationTests.getMockUserInfo(2);
 		// sign up
 		signupPage = new SignupPage(driver);
 		driver.get("http://localhost:" + this.port + "/signup");
-		signupPage.signup(CloudStorageApplicationTests.getMockUserInfo(2));
+		signupPage.signup(user);
 		//login in
 		loginPage = new LoginPage(driver);
-		loginPage.login(CloudStorageApplicationTests.getMockUserInfo(2));
+		loginPage.login(user);
 		// navigate to notes tab
 		homePage = new HomePage(driver);
 		homePage.navToNotes();
@@ -121,7 +127,8 @@ class CloudStorageApplicationTests {
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("note-title")));
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("note-description")));
 		// create note
-		notePage.createOrUpdateNote(CloudStorageApplicationTests.getMockNoteInfo());
+		Note note = CloudStorageApplicationTests.getMockNoteInfo();
+		notePage.createOrUpdateNote(note);
 		// back from result
 		resultPage = new ResultPage(driver);
 		resultPage.goBackToHomeFromSuccessMsg();
@@ -131,21 +138,22 @@ class CloudStorageApplicationTests {
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"userTable\"]/tbody/tr[1]/th")));
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"userTable\"]/tbody/tr[1]/td[2]")));
 		// check display
-		Assertions.assertEquals(CloudStorageApplicationTests.getMockNoteInfo().getNoteTitle(),notePage.getNoteTitleDisplay());
-		Assertions.assertEquals(CloudStorageApplicationTests.getMockNoteInfo().getNoteDescription(),notePage.getNoteDescriptionDisplay());
+		Assertions.assertEquals(note.getNoteTitle(),notePage.getNoteTitleDisplay());
+		Assertions.assertEquals(note.getNoteDescription(),notePage.getNoteDescriptionDisplay());
 		homePage.logout();
 	}
 
 	/*edits an existing note and verifies that the changes are displayed.*/
 	@Test
 	public void edit_notes_happy_path(){
+		User user = CloudStorageApplicationTests.getMockUserInfo(3);
 		// sign up
 		signupPage = new SignupPage(driver);
 		driver.get("http://localhost:" + this.port + "/signup");
-		signupPage.signup(CloudStorageApplicationTests.getMockUserInfo(3));
+		signupPage.signup(user);
 		//login in
 		loginPage = new LoginPage(driver);
-		loginPage.login(CloudStorageApplicationTests.getMockUserInfo(3));
+		loginPage.login(user);
 		// navigate to notes tab
 		homePage = new HomePage(driver);
 		homePage.navToNotes();
@@ -156,7 +164,8 @@ class CloudStorageApplicationTests {
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("note-title")));
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("note-description")));
 		// create note
-		notePage.createOrUpdateNote(CloudStorageApplicationTests.getMockNoteInfo());
+		Note note = CloudStorageApplicationTests.getMockNoteInfo();
+		notePage.createOrUpdateNote(note);
 		// back from result
 		resultPage = new ResultPage(driver);
 		resultPage.goBackToHomeFromSuccessMsg();
@@ -166,10 +175,11 @@ class CloudStorageApplicationTests {
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"userTable\"]/tbody/tr[1]/td[1]/button")));
 		notePage.getNoteEditModal();
 		// edit note
+		Note note2 = CloudStorageApplicationTests.getMockNoteInfo2();
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("note-title")));
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("note-description")));
 		notePage.clearPreviousInput();
-		notePage.createOrUpdateNote(CloudStorageApplicationTests.getMockNoteInfo2());
+		notePage.createOrUpdateNote(note2);
 		// back from result
 		resultPage.goBackToHomeFromSuccessMsg();
 		// navigate to notes tab again
@@ -178,21 +188,22 @@ class CloudStorageApplicationTests {
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"userTable\"]/tbody/tr[1]/th")));
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"userTable\"]/tbody/tr[1]/td[2]")));
 		// check display after note edited
-		Assertions.assertEquals(CloudStorageApplicationTests.getMockNoteInfo2().getNoteTitle(),notePage.getNoteTitleDisplay());
-		Assertions.assertEquals(CloudStorageApplicationTests.getMockNoteInfo2().getNoteDescription(),notePage.getNoteDescriptionDisplay());
+		Assertions.assertEquals(note2.getNoteTitle(),notePage.getNoteTitleDisplay());
+		Assertions.assertEquals(note2.getNoteDescription(),notePage.getNoteDescriptionDisplay());
 		homePage.logout();
 	}
 
 	/*Write a test that deletes a note and verifies that the note is no longer displayed.*/
 	@Test
 	public void delete_notes_happy_path(){
+		User user = CloudStorageApplicationTests.getMockUserInfo(4);
 		// sign up
 		signupPage = new SignupPage(driver);
 		driver.get("http://localhost:" + this.port + "/signup");
-		signupPage.signup(CloudStorageApplicationTests.getMockUserInfo(4));
+		signupPage.signup(user);
 		//login in
 		loginPage = new LoginPage(driver);
-		loginPage.login(CloudStorageApplicationTests.getMockUserInfo(4));
+		loginPage.login(user);
 		// navigate to notes tab
 		homePage = new HomePage(driver);
 		homePage.navToNotes();
@@ -203,7 +214,8 @@ class CloudStorageApplicationTests {
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("note-title")));
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("note-description")));
 		// create note
-		notePage.createOrUpdateNote(CloudStorageApplicationTests.getMockNoteInfo());
+		Note note = CloudStorageApplicationTests.getMockNoteInfo();
+		notePage.createOrUpdateNote(note);
 		// back from result
 		resultPage = new ResultPage(driver);
 		resultPage.goBackToHomeFromSuccessMsg();
@@ -215,6 +227,14 @@ class CloudStorageApplicationTests {
 		notePage.deleteNote();
 		// back from result
 		resultPage.goBackToHomeFromSuccessMsg();
+		// navigate to note page
+		homePage.navToNotes();
+		// wait for a moment
+		try {
+			sleep(3000);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
 		// check element disappear
 		Exception e1 = Assertions.assertThrows(Exception.class, ()->notePage.getNoteTitleDisplay());
 		Assertions.assertTrue(e1.getMessage().contains("no such element"));
@@ -226,13 +246,15 @@ class CloudStorageApplicationTests {
 	/*creates a set of credentials, verifies that they are displayed, and verifies that the displayed password is encrypted.*/
 	@Test
 	public void create_credential_happy_path(){
+		User user = CloudStorageApplicationTests.getMockUserInfo(5);
 		// sign up
 		signupPage = new SignupPage(driver);
 		driver.get("http://localhost:" + this.port + "/signup");
-		signupPage.signup(CloudStorageApplicationTests.getMockUserInfo(5));
+		signupPage.signup(user);
+		Integer userId = userService.findUserIdByUsername(user.getUsername());
 		//login in
 		loginPage = new LoginPage(driver);
-		loginPage.login(CloudStorageApplicationTests.getMockUserInfo(5));
+		loginPage.login(user);
 		// navigate to credential tab
 		homePage = new HomePage(driver);
 		homePage.navToCredential();
@@ -246,28 +268,155 @@ class CloudStorageApplicationTests {
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credential-username")));
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credential-password")));
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credentialSave")));
-		credentialPage.createOrUpdate(CloudStorageApplicationTests.getMockCredentialInfo1());
+
+		Credential credential = CloudStorageApplicationTests.getMockCredentialInfo1();
+		credentialPage.createOrUpdate(credential);
 		// return homepage from resultpage
 		resultPage = new ResultPage(driver);
 		resultPage.goBackToHomeFromSuccessMsg();
 		// navigate to credential tab
 		homePage.navToCredential();
 		// get encrypted password
-		String key = credentialService.findKeyById(1);
-		String encryptedPassword =
-			encryptionService.encryptValue(CloudStorageApplicationTests.getMockCredentialInfo1().getPassword(), key);
+		String key = credentialService.findKeyById(userId);
+		String encryptedPassword = encryptionService.encryptValue(credential.getPassword(), key);
 		// compare actual and expected value
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"credentialTable\"]/tbody/tr[1]/th")));
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"credentialTable\"]/tbody/tr[1]/td[2]")));
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"credentialTable\"]/tbody/tr[1]/td[3]")));
-		Credential credential = credentialPage.getCredentialAtHomePage();
-		Assertions.assertEquals(CloudStorageApplicationTests.getMockCredentialInfo1().getUrl(), credential.getUrl());
-		Assertions.assertEquals(CloudStorageApplicationTests.getMockCredentialInfo1().getUsername(), credential.getUsername());
-		Assertions.assertEquals(encryptedPassword, credential.getPassword());
+		Credential credentialActual = credentialPage.getCredentialAtHomePage();
+		Assertions.assertEquals(credential.getUrl(), credentialActual.getUrl());
+		Assertions.assertEquals(credential.getUsername(), credentialActual.getUsername());
+		Assertions.assertEquals(encryptedPassword, credentialActual.getPassword());
+		homePage.logout();
 	}
 
 	/*views an existing set of credentials, verifies that the viewable password is unencrypted, edits the credentials, and verifies that the changes are displayed.*/
+	@Test
+	public void edit_credential_happy_path(){
+		User user = CloudStorageApplicationTests.getMockUserInfo(6);
+		// sign up
+		signupPage = new SignupPage(driver);
+		driver.get("http://localhost:" + this.port + "/signup");
+		signupPage.signup(user);
+		Integer userId = userService.findUserIdByUsername(user.getUsername());
+		//login in
+		WebDriverWait webDriverWait = new WebDriverWait(driver,5);
+		loginPage = new LoginPage(driver);
+		loginPage.login(user);
+		// navigate to credential tab
+		homePage = new HomePage(driver);
+		homePage.navToCredential();
+		// open modal
+		credentialPage = new CredentialPage(driver);
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("openCredentialModal")));
+		credentialPage.openModal();
+		// create credential
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credential-url")));
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credential-username")));
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credential-password")));
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credentialSave")));
+		Credential credential = CloudStorageApplicationTests.getMockCredentialInfo1();
+		credentialPage.createOrUpdate(credential);
+		// return homepage from resultpage
+		resultPage = new ResultPage(driver);
+		resultPage.goBackToHomeFromSuccessMsg();
+		// navigate to credential tab
+		homePage.navToCredential();
+		// open modal
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"credentialTable\"]/tbody/tr[1]/td[1]/button")));
+		credentialPage.startEdit();
+		// verify url, username, password is unencrypted
+		Assertions.assertEquals(credential.getUrl(), credentialPage.getExistingInfoInModal().getUrl());
+		Assertions.assertEquals(credential.getUsername(), credentialPage.getExistingInfoInModal().getUsername());
+		Assertions.assertEquals(credential.getPassword(), credentialPage.getExistingInfoInModal().getPassword());
+		// update credential
+		Credential newCredential = CloudStorageApplicationTests.getMockCredentialInfo2();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credential-url")));
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credential-username")));
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credential-password")));
+		credentialPage.clearPreviousInput();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credentialSave")));
+		credentialPage.createOrUpdate(newCredential);
+		// return homepage from resultpage
+		resultPage.goBackToHomeFromSuccessMsg();
+		// navigate to credential tab
+		homePage.navToCredential();
+		// get encrypted password
+		String key = credentialService.findKeyById(userId);
+		String encryptedPassword = encryptionService.encryptValue(newCredential.getPassword(), key);
+		// compare actual and expected value
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"credentialTable\"]/tbody/tr[1]/th")));
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"credentialTable\"]/tbody/tr[1]/td[2]")));
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"credentialTable\"]/tbody/tr[1]/td[3]")));
+		Credential credentialActual = credentialPage.getCredentialAtHomePage();
+		Assertions.assertEquals(newCredential.getUrl(), credentialActual.getUrl());
+		Assertions.assertEquals(newCredential.getUsername(), credentialActual.getUsername());
+		Assertions.assertEquals(encryptedPassword, credentialActual.getPassword());
+		// open modal again
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"credentialTable\"]/tbody/tr[1]/td[1]/button")));
+		credentialPage.startEdit();
+		// verify url, username, password is unencrypted again
+		Assertions.assertEquals(newCredential.getUrl(), credentialPage.getExistingInfoInModal().getUrl());
+		Assertions.assertEquals(newCredential.getUsername(), credentialPage.getExistingInfoInModal().getUsername());
+		Assertions.assertEquals(newCredential.getPassword(), credentialPage.getExistingInfoInModal().getPassword());
+		// cancel modal
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credentialClose")));
+		credentialPage.cancelEdit();
+		// logout
+		homePage.logout();
+	}
+
 	/*deletes an existing set of credentials and verifies that the credentials are no longer displayed.*/
+	@Test
+	public void delete_credential_happy_path() {
+		User user = CloudStorageApplicationTests.getMockUserInfo(7);
+		// sign up
+		signupPage = new SignupPage(driver);
+		driver.get("http://localhost:" + this.port + "/signup");
+		signupPage.signup(user);
+		Integer userId = userService.findUserIdByUsername(user.getUsername());
+		//login in
+		loginPage = new LoginPage(driver);
+		loginPage.login(user);
+		// navigate to credential tab
+		homePage = new HomePage(driver);
+		homePage.navToCredential();
+		// open modal
+		credentialPage = new CredentialPage(driver);
+		WebDriverWait webDriverWait = new WebDriverWait(driver,5);
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("openCredentialModal")));
+		credentialPage.openModal();
+		// create credential
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credential-url")));
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credential-username")));
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credential-password")));
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credentialSave")));
+		Credential credential = CloudStorageApplicationTests.getMockCredentialInfo1();
+		credentialPage.createOrUpdate(credential);
+		// return homepage from resultpage
+		resultPage = new ResultPage(driver);
+		resultPage.goBackToHomeFromSuccessMsg();
+		// navigate to credential tab
+		homePage.navToCredential();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"credentialTable\"]/tbody/tr[1]/td[1]/a")));
+		credentialPage.deleteCredential();
+		resultPage.goBackToHomeFromSuccessMsg();
+		homePage.navToCredential();
+		// wait for loading
+		try {
+			sleep(3000);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+		// check element disappear
+		Exception e1 = Assertions.assertThrows(Exception.class, ()->credentialPage.getCredentialAtHomePage().getUrl());
+		Assertions.assertTrue(e1.getMessage().contains("no such element"));
+		Exception e2 = Assertions.assertThrows(Exception.class, ()->credentialPage.getCredentialAtHomePage().getUsername());
+		Assertions.assertTrue(e2.getMessage().contains("no such element"));
+		Exception e3 = Assertions.assertThrows(Exception.class, ()->credentialPage.getCredentialAtHomePage().getPassword());
+		Assertions.assertTrue(e3.getMessage().contains("no such element"));
+		homePage.logout();
+	}
 
 	@Test
 	public void getLoginPage() {
@@ -453,6 +602,12 @@ class CloudStorageApplicationTests {
 			case 5:
 				user.setUsername("t1115");
 				break;
+			case 6:
+				user.setUsername("t1116");
+				break;
+			case 7:
+				user.setUsername("t1117");
+				break;
 		}
 
 		return user;
@@ -480,9 +635,17 @@ class CloudStorageApplicationTests {
 		return credential;
 	}
 
-	public String getEncryptedPassword(String plainPassword, Integer id){
+	private static Credential getMockCredentialInfo2(){
+		Credential credential = new Credential();
+		credential.setUrl("https://doglog.com");
+		credential.setUsername("9999");
+		credential.setPassword("4321");
+		return credential;
+	}
 
-		String key = credentialService.findKeyById(id);
+	public String getEncryptedPassword(String plainPassword, Integer userId){
+
+		String key = credentialService.findKeyById(userId);
 		return encryptionService.encryptValue(plainPassword,key);
 	}
 }
