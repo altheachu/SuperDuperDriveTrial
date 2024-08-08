@@ -33,6 +33,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().logout().logoutSuccessUrl("/login?logout")
                 .invalidateHttpSession(true)
                 .clearAuthentication(true)
-                .and().csrf().ignoringAntMatchers("/h2/**");
+                .and().csrf().ignoringAntMatchers("/h2/**")
+                // make h2 console visible below
+                /*.disable().headers().frameOptions().disable()*/;
+
     }
 }
